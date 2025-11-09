@@ -9,7 +9,6 @@ import { MatIconModule } from '@angular/material/icon';
  */
 @Component({
   selector: 'app-stat-card',
-  standalone: true,
   imports: [CommonModule, MatCardModule, MatIconModule],
   templateUrl: './stat-card.component.html',
   styleUrl: './stat-card.component.scss'

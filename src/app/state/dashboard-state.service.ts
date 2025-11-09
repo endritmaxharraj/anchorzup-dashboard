@@ -21,8 +21,6 @@ export class DashboardStateService {
   readonly salesData = toSignal(this.apiService.getSalesData(), {
     initialValue: [],
   });
-  readonly statsData = toSignal(this.apiService.getStatsData());
-  readonly chartData = toSignal(this.apiService.getChartData());
 
   private filterState = signal<FilterConfig>({
     dateRange: 90,
@@ -33,7 +31,7 @@ export class DashboardStateService {
   readonly widgetLayout = this.widgetLayoutState.asReadonly();
 
   /**
-   * Filtered sales data based on date range filter
+   * Filtered sales data based on date range filter (current period)
    */
   readonly filteredSalesData = computed(() => {
     const data = this.salesData();
@@ -50,64 +48,138 @@ export class DashboardStateService {
   });
 
   /**
-   * Computed statistics based on filtered data
+   * Previous period sales data for comparison
+   */
+  private previousPeriodSalesData = computed(() => {
+    const data = this.salesData();
+    const filters = this.filterState();
+    
+    const now = new Date();
+    const currentPeriodStart = new Date(now);
+    currentPeriodStart.setDate(currentPeriodStart.getDate() - filters.dateRange);
+    
+    const previousPeriodStart = new Date(currentPeriodStart);
+    previousPeriodStart.setDate(previousPeriodStart.getDate() - filters.dateRange);
+    
+    return data.filter(sale => {
+      const saleDate = new Date(sale.date);
+      return saleDate >= previousPeriodStart && saleDate < currentPeriodStart;
+    });
+  });
+
+  /**
+   * Computed statistics based on filtered data with period-over-period comparison
    */
   readonly filteredStats = computed(() => {
-    const filtered = this.filteredSalesData();
-    const totalSales = filtered.reduce((sum, sale) => sum + sale.sales, 0);
+    const current = this.filteredSalesData();
+    const previous = this.previousPeriodSalesData();
+    
+    const currentTotalSales = current.reduce((sum, sale) => sum + sale.sales, 0);
+    const previousTotalSales = previous.reduce((sum, sale) => sum + sale.sales, 0);
+    
+    const salesChange = previousTotalSales > 0 
+      ? ((currentTotalSales - previousTotalSales) / previousTotalSales) * 100 
+      : 0;
     
     return {
       totalSales: {
-        value: totalSales,
-        change: 12.5,
-        trend: 'up' as const
+        value: currentTotalSales,
+        change: Math.round(salesChange * 10) / 10,
+        trend: salesChange >= 0 ? 'up' as const : 'down' as const
       },
-      activeUsers: {
-        value: filtered.length * 10,
-        change: 8.2,
-        trend: 'up' as const
-      },
-      recordCount: filtered.length
+      recordCount: current.length
     };
   });
 
   /**
-   * Computed chart data grouped by day of week from filtered sales
+   * Computed chart data from filtered sales
    */
   readonly filteredChartData = computed(() => {
     const filtered = this.filteredSalesData();
+    const dateRange = this.filterState().dateRange;
     
-    const salesByDay: Record<string, number> = {
-      'Mon': 0, 'Tue': 0, 'Wed': 0, 'Thu': 0, 'Fri': 0, 'Sat': 0, 'Sun': 0
-    };
-    const activityByDay: Record<string, number> = {
-      'Mon': 0, 'Tue': 0, 'Wed': 0, 'Thu': 0, 'Fri': 0, 'Sat': 0, 'Sun': 0
-    };
+    const salesByDate: Map<string, number> = new Map();
+    const transactionsByDate: Map<string, number> = new Map();
+    const revenueByCountry: Map<string, number> = new Map();
     
     filtered.forEach(sale => {
-      const date = new Date(sale.date);
-      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      const dayName = dayNames[date.getDay()];
+      const dateStr = sale.date;
       
-      salesByDay[dayName] += sale.sales;
-      activityByDay[dayName] += 1;
+      salesByDate.set(dateStr, (salesByDate.get(dateStr) || 0) + sale.sales);
+      transactionsByDate.set(dateStr, (transactionsByDate.get(dateStr) || 0) + 1);
+      
+      revenueByCountry.set(
+        sale.country, 
+        (revenueByCountry.get(sale.country) || 0) + sale.sales
+      );
     });
     
-    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    let salesTrendLabels: string[];
+    let salesTrendData: number[];
+    let transactionLabels: string[];
+    let transactionData: number[];
+    
+    if (dateRange === 7) {
+      const now = new Date();
+      const allDates: string[] = [];
+      for (let i = dateRange - 1; i >= 0; i--) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split('T')[0];
+        allDates.push(dateStr);
+      }
+      
+      salesTrendLabels = allDates.map(date => {
+        const d = new Date(date);
+        return `${d.getMonth() + 1}/${d.getDate()}`;
+      });
+      salesTrendData = allDates.map(date => salesByDate.get(date) || 0);
+      
+      transactionLabels = allDates.map(date => {
+        const d = new Date(date);
+        return `${d.getMonth() + 1}/${d.getDate()}`;
+      });
+      transactionData = allDates.map(date => transactionsByDate.get(date) || 0);
+    } else {
+      const sortedDates = Array.from(salesByDate.keys()).sort();
+      
+      salesTrendLabels = sortedDates.map(date => {
+        const d = new Date(date);
+        return `${d.getMonth() + 1}/${d.getDate()}`;
+      });
+      salesTrendData = sortedDates.map(date => salesByDate.get(date) || 0);
+      
+      transactionLabels = sortedDates.map(date => {
+        const d = new Date(date);
+        return `${d.getMonth() + 1}/${d.getDate()}`;
+      });
+      transactionData = sortedDates.map(date => transactionsByDate.get(date) || 0);
+    }
+    
+    const topCountries = Array.from(revenueByCountry.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
     
     return {
       salesTrend: {
-        labels,
+        labels: salesTrendLabels.length > 0 ? salesTrendLabels : ['No Data'],
         datasets: [{
-          label: 'Sales',
-          data: labels.map(day => salesByDay[day])
+          label: 'Sales Revenue',
+          data: salesTrendData.length > 0 ? salesTrendData : [0]
         }]
       },
       userActivity: {
-        labels,
+        labels: transactionLabels.length > 0 ? transactionLabels : ['No Data'],
         datasets: [{
-          label: 'Active Users',
-          data: labels.map(day => activityByDay[day] * 100)
+          label: 'Daily Transactions',
+          data: transactionData.length > 0 ? transactionData : [0]
+        }]
+      },
+      revenueDistribution: {
+        labels: topCountries.map(([country]) => country),
+        datasets: [{
+          label: 'Revenue',
+          data: topCountries.map(([, revenue]) => revenue)
         }]
       }
     };
@@ -206,7 +278,7 @@ export class DashboardStateService {
       {
         id: 'chart-2',
         type: 'chart',
-        title: 'User Activity',
+        title: 'Daily Transactions',
         cols: 4,
         rows: 1,
         x: 4,
@@ -223,7 +295,7 @@ export class DashboardStateService {
         x: 8,
         y: 1,
         chartType: 'pie',
-        dataSource: 'userActivity',
+        dataSource: 'revenueDistribution',
       },
     ];
   }

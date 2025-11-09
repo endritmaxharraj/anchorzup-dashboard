@@ -9,9 +9,15 @@
         </button>
       }
     </mat-form-field>
-    <div class="record-count">
-      <mat-icon>table_rows</mat-icon>
-      <span>{{ filteredDataLength() }} of {{ rawData().length }} records</span>
+    <div class="table-controls">
+      <div class="record-count">
+        <mat-icon>table_rows</mat-icon>
+        <span>{{ filteredDataLength() }} of {{ rawData().length }} records</span>
+      </div>
+      <button mat-stroked-button (click)="exportData()" class="export-btn">
+        <mat-icon>download</mat-icon>
+        Export CSV
+      </button>
     </div>
   </div>
   <div class="table-content">

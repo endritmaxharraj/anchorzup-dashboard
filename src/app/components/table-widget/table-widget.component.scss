@@ -12,6 +12,13 @@
   background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
   border-bottom: 2px solid #e3e8ef;
   gap: 16px;
+
+  .table-controls {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: center;
+  }
 }
 
 .search-field {
@@ -183,5 +190,35 @@ mat-paginator {
   border-top: 1px solid #e3e8ef;
   background: #f9fafb;
   margin-top: 0;
+}
+
+.export-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid #5d3fd3;
+  color: #5d3fd3;
+  background: white;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    background: #5d3fd3;
+    color: white;
+
+    mat-icon {
+      color: white;
+    }
+  }
 }
 

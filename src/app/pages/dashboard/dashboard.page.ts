@@ -21,7 +21,6 @@ import { WidgetConfig } from '../../types/widget-config.type';
  */
 @Component({
   selector: 'app-dashboard',
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
@@ -104,7 +103,6 @@ export class DashboardPage implements OnInit {
    */
   resetLayout(): void {
     this.stateService.resetLayout();
-    this.equalizeWidths();
     
     this.snackBar.open('✓ Layout reset to default!', 'Close', {
       duration: 3000,
@@ -119,7 +117,6 @@ export class DashboardPage implements OnInit {
    */
   getStatValue(key: string): number {
     const stats = this.statsData();
-    if (!stats) return 0;
     
     if (key === 'totalSales') {
       return stats.totalSales?.value || 0;
@@ -132,7 +129,6 @@ export class DashboardPage implements OnInit {
    */
   getStatChange(key: string): number {
     const stats = this.statsData();
-    if (!stats) return 0;
     
     if (key === 'totalSales') {
       return stats.totalSales?.change || 0;
@@ -145,7 +141,6 @@ export class DashboardPage implements OnInit {
    */
   getChartLabels(source: string): string[] {
     const data = this.chartData();
-    if (!data) return [];
     return data[source as keyof typeof data]?.labels || [];
   }
 
@@ -154,7 +149,6 @@ export class DashboardPage implements OnInit {
    */
   getChartData(source: string): number[] {
     const data = this.chartData();
-    if (!data) return [];
     return data[source as keyof typeof data]?.datasets[0]?.data || [];
   }
 

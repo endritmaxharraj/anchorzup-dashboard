@@ -96,11 +96,11 @@ ng lint
 - **Save/Reset Layout**: Manually save or reset to default layout via header buttons
 
 ### Widgets
-- **Total Sales Card**: Displays total sales amount with percentage change indicator
-- **Sales Trend Chart**: Line chart showing sales trends over time
-- **User Activity Chart**: Bar chart displaying daily user activity
-- **Revenue Distribution Chart**: Pie chart showing revenue breakdown
-- **Recent Sales Table**: Searchable, sortable, paginated table with sales data
+- **Total Sales Card**: Displays total sales amount with period-over-period percentage change (compares current period vs. previous equal period)
+- **Sales Trend Chart**: Line chart showing sales revenue over time with actual dates (7 days shows all dates including zeros, 30/90 days show only dates with data)
+- **Daily Transactions Chart**: Bar chart displaying transaction count per day
+- **Revenue Distribution Chart**: Pie chart showing revenue breakdown by top 5 countries
+- **Recent Sales Table**: Searchable, sortable, paginated table with sales data, empty state, and CSV export
 
 ### Responsive Design
 The dashboard is fully responsive and adapts to mobile, tablet, and desktop screens.
@@ -111,19 +111,23 @@ The dashboard is fully responsive and adapts to mobile, tablet, and desktop scre
 - **Angular Material**: 19.2.0
 - **Angular CDK**: 19.2.0 (for drag-drop)
 - **Chart.js**: 4.5.1
+- **Papa Parse**: 5.4.1 (for CSV export)
 - **TypeScript**: 5.7.2
 - **RxJS**: 7.8.0
 - **SCSS**: For styling
 
 ## Data Flow
 
-1. Mock JSON data is stored in the `data/` folder
-2. `DashboardApiService` loads the JSON files and returns them as Observables
-3. `DashboardStateService` converts Observables to Signals and manages filtered/computed state
-4. Dashboard page subscribes to state signals and passes data to widget components
-5. Widget components render the data and emit user interactions
-6. State service updates based on user actions (filtering, layout changes)
-7. Layout changes are persisted to localStorage
+1. Mock sales data is stored in the `data/sales-data.json` file
+2. `DashboardApiService` loads the JSON file and returns it as an Observable
+3. `DashboardStateService` converts Observable to Signal using `toSignal()` and provides computed signals for:
+   - Filtered sales data based on date range
+   - Statistics with period-over-period comparison
+   - Chart data (sales trend, daily transactions, revenue distribution)
+4. Dashboard page accesses state signals and passes data to widget components via inputs
+5. Widget components render the data and remain purely presentational
+6. State service updates computed values reactively when filters change
+7. Layout changes are persisted to localStorage only when explicitly saved
 
 ## Project Structure
 
@@ -137,7 +141,7 @@ The dashboard is fully responsive and adapts to mobile, tablet, and desktop scre
 
 **Types**: TypeScript interfaces for type safety across the application
 
-**Mock Data**: JSON files containing sales data, stats, and chart information
+**Mock Data**: Single JSON file (`sales-data.json`) containing sales transactions; all stats and charts are computed from this data
 
 ## Browser Support
 
@@ -150,9 +154,10 @@ The dashboard is fully responsive and adapts to mobile, tablet, and desktop scre
 
 - The project uses Angular 19's new control flow syntax (`@if`, `@for`) instead of structural directives
 - State management is handled entirely with Signals, avoiding unnecessary RxJS complexity
-- All components are standalone with no NgModules
-- Drag-drop uses Angular Material CDK with custom resizing logic
+- Drag-drop uses Angular Material CDK with custom horizontal resizing logic
 - Layout is row-based with widgets movable only within their row
+- Charts display all dates (including zeros) for 7-day view, but only dates with data for 30/90-day views
+- Period-over-period calculations compare current period vs. previous equal-length period
 
 ---
 

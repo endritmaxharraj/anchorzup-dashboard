@@ -1,4 +1,4 @@
-import { Component, Input, signal, computed } from '@angular/core';
+import { Component, Input, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
@@ -11,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { SalesData } from '../../types/sales-data.type';
+import { ExportService } from '../../services/export.service';
 
 /**
  * Table Widget Component
@@ -18,7 +19,6 @@ import { SalesData } from '../../types/sales-data.type';
  */
 @Component({
   selector: 'app-table-widget',
-  standalone: true,
   imports: [
     CommonModule,
     MatCardModule,
@@ -41,6 +41,7 @@ export class TableWidgetComponent {
     this.rawData.set(value);
   }
 
+  private readonly exportService = inject(ExportService);
   private pageIndex = signal(0);
   private sortColumn = signal('');
   private sortDirection = signal<'asc' | 'desc'>('asc');
@@ -128,6 +129,21 @@ export class TableWidgetComponent {
   onPageChange(event: PageEvent): void {
     this.pageIndex.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
+  }
+
+  /**
+   * Exports filtered data to CSV
+   */
+  exportData(): void {
+    const dataToExport = this.filteredData().map(item => ({
+      Name: item.name,
+      Email: item.email,
+      Country: item.country,
+      Sales: item.sales,
+      Status: item.status
+    }));
+    
+    this.exportService.exportToCSV(dataToExport, 'sales-data');
   }
 }
 
