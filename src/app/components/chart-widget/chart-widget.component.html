@@ -1,0 +1,21 @@
+<div class="chart-card">
+  @if (showControls) {
+    <div class="chart-header">
+      <div class="chart-controls">
+        <mat-form-field appearance="outline" class="chart-type-select">
+          <mat-select [(ngModel)]="currentChartType" (selectionChange)="updateChart()">
+            <mat-option value="line">Line</mat-option>
+            <mat-option value="bar">Bar</mat-option>
+            <mat-option value="pie">Pie</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+  }
+  <div class="chart-content" [class.no-header]="!showControls">
+    <div class="chart-container">
+      <canvas #chartCanvas></canvas>
+    </div>
+  </div>
+</div>
+

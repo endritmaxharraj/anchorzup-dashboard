@@ -1,0 +1,136 @@
+<div class="dashboard-toolbar">
+  <div class="toolbar-content">
+    <div class="logo-section">
+      <div class="logo-icon">
+        <i class="material-icons">analytics</i>
+      </div>
+      <h1>AnchorzUp Dashboard</h1>
+    </div>
+
+      <div class="toolbar-actions">
+        <mat-form-field appearance="outline" class="date-range-field">
+          <mat-icon matPrefix class="calendar-icon">calendar_today</mat-icon>
+          <mat-select 
+            [(ngModel)]="selectedDateRange" 
+            (selectionChange)="onDateRangeChange()"
+            class="date-select">
+            @for (range of dateRanges; track range.value) {
+              <mat-option [value]="range.value">{{ range.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+      <button class="action-btn save-btn" (click)="saveLayout()">
+        <i class="material-icons">save</i>
+        <span>Save Layout</span>
+      </button>
+
+      <button class="action-btn reset-btn" (click)="resetLayout()">
+        <i class="material-icons">refresh</i>
+        <span>Reset</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="dashboard-container">
+  <!-- Row 0: Total Sales + Recent Sales Table -->
+  <div 
+    class="dashboard-row"
+    cdkDropList
+    cdkDropListOrientation="horizontal"
+    [cdkDropListData]="row0Widgets()"
+    (cdkDropListDropped)="dropRow0($event)">
+    
+    @for (widget of row0Widgets(); track widget.id) {
+      <div 
+        class="widget-wrapper"
+        cdkDrag
+        [style.width]="getWidgetWidth(widget)">
+        
+        <div class="widget-card">
+          <div 
+            class="resize-handle-left"
+            (mousedown)="startResize($event, widget, 'left')">
+          </div>
+
+          <div class="widget-header">
+            <span class="widget-title">{{ widget.title }}</span>
+          </div>
+
+          <div class="widget-content">
+            @switch (widget.type) {
+              @case ('stat') {
+                <app-stat-card
+                  [label]="widget.title"
+                  [value]="getStatValue(widget.dataSource || '')"
+                  [change]="getStatChange(widget.dataSource || '')"
+                  [prefix]="'$'"
+                />
+              }
+              @case ('table') {
+                <app-table-widget
+                  [title]="widget.title"
+                  [data]="salesData()"
+                />
+              }
+            }
+          </div>
+
+          <div 
+            class="resize-handle-right"
+            (mousedown)="startResize($event, widget, 'right')">
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Row 1: Three Charts -->
+  <div 
+    class="dashboard-row"
+    cdkDropList
+    cdkDropListOrientation="horizontal"
+    [cdkDropListData]="row1Widgets()"
+    (cdkDropListDropped)="dropRow1($event)">
+    
+    @for (widget of row1Widgets(); track widget.id) {
+      <div 
+        class="widget-wrapper"
+        cdkDrag
+        [style.width]="getWidgetWidth(widget)">
+        
+        <div class="widget-card">
+          <div 
+            class="resize-handle-left"
+            (mousedown)="startResize($event, widget, 'left')">
+          </div>
+
+          <div class="widget-header">
+            <span class="widget-title">{{ widget.title }}</span>
+          </div>
+
+          <div class="widget-content">
+            @switch (widget.type) {
+              @case ('chart') {
+                <app-chart-widget
+                  [title]="widget.title"
+                  [chartType]="widget.chartType || 'line'"
+                  [labels]="getChartLabels(widget.dataSource || '')"
+                  [data]="getChartData(widget.dataSource || '')"
+                  [label]="widget.title"
+                  [showControls]="false"
+                />
+              }
+            }
+          </div>
+
+          <div 
+            class="resize-handle-right"
+            (mousedown)="startResize($event, widget, 'right')">
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

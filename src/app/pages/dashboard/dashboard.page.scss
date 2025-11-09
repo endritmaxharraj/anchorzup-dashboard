@@ -1,0 +1,401 @@
+.dashboard-toolbar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  padding: 20px 32px;
+
+  .toolbar-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    max-width: 1600px;
+    margin: 0 auto;
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .logo-icon {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .material-icons {
+          font-size: 24px;
+          color: white;
+        }
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 600;
+        color: white;
+        letter-spacing: -0.3px;
+      }
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .date-range-field {
+        min-width: 180px;
+        margin: 0;
+
+        ::ng-deep {
+          .mat-mdc-text-field-wrapper {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 0 12px;
+          }
+
+          .mat-mdc-form-field-flex {
+            height: 42px;
+            align-items: center;
+          }
+
+          .mat-mdc-form-field-infix {
+            padding: 0;
+            border: none;
+            min-height: auto;
+          }
+
+          .mat-mdc-select {
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+          }
+
+          .mat-mdc-select-arrow {
+            color: white;
+          }
+
+          .calendar-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+            color: white;
+            margin-right: 10px;
+          }
+
+          .mat-mdc-form-field-subscript-wrapper {
+            display: none;
+          }
+
+          .mat-mdc-notched-outline {
+            display: none;
+          }
+
+          .mat-mdc-select-value {
+            color: white;
+          }
+
+          .mat-mdc-select-placeholder {
+            color: rgba(255, 255, 255, 0.7);
+          }
+        }
+      }
+
+      .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 42px;
+        padding: 0 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        .material-icons {
+          font-size: 18px;
+        }
+
+        span {
+          white-space: nowrap;
+        }
+
+        &:hover {
+          transform: translateY(-2px);
+        }
+      }
+
+      .save-btn {
+        background: white;
+        color: #667eea;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+        &:hover {
+          background: #f8f9fa;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+      }
+
+      .reset-btn {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.2);
+          border-color: rgba(255, 255, 255, 0.5);
+        }
+      }
+    }
+  }
+}
+
+.dashboard-container {
+  padding: 24px;
+  background: #f5f5f5;
+  min-height: calc(100vh - 64px);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.dashboard-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  height: 380px;
+}
+
+.widget-wrapper {
+  position: relative;
+  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
+  transition: width 0.2s ease;
+
+  &.cdk-drag-preview {
+    opacity: 0;
+    visibility: hidden;
+    height: 100% !important;
+  }
+
+  &.cdk-drag-placeholder {
+    opacity: 0.3;
+    height: 100% !important;
+  }
+
+  &.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+    height: 100% !important;
+  }
+}
+
+.widget-card {
+  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  background: white;
+  cursor: grab;
+  user-select: none;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  .widget-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+  }
+}
+
+.widget-content {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+  height: 100%;
+  
+  display: flex;
+  flex-direction: column;
+
+  app-chart-widget {
+    height: 100%;
+  }
+}
+
+.resize-handle-left,
+.resize-handle-right {
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 100%;
+  cursor: ew-resize;
+  z-index: 10;
+  
+  &:hover {
+    background: rgba(63, 81, 181, 0.1);
+  }
+
+  &:active {
+    background: rgba(63, 81, 181, 0.2);
+  }
+}
+
+.resize-handle-left {
+  left: 0;
+}
+
+.resize-handle-right {
+  right: 0;
+}
+
+.cdk-drop-list {
+  &.cdk-drop-list-dragging {
+    .widget-wrapper:not(.cdk-drag-placeholder) {
+      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .dashboard-toolbar {
+    padding: 16px 20px;
+
+    .toolbar-content {
+      flex-wrap: wrap;
+      gap: 16px;
+
+      .logo-section {
+        h1 {
+          font-size: 20px;
+        }
+      }
+
+      .toolbar-actions {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 10px;
+
+        .date-range-wrapper {
+          flex: 1;
+          min-width: 160px;
+        }
+
+        .action-btn {
+          flex: 1;
+          min-width: 120px;
+          justify-content: center;
+        }
+      }
+    }
+  }
+
+  .dashboard-container {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-toolbar {
+    padding: 16px;
+
+    .toolbar-content {
+      .logo-section {
+        .logo-icon {
+          width: 38px;
+          height: 38px;
+
+          .material-icons {
+            font-size: 20px;
+          }
+        }
+
+        h1 {
+          font-size: 18px;
+        }
+      }
+
+      .toolbar-actions {
+        .date-range-wrapper {
+          min-width: 140px;
+        }
+
+        .action-btn {
+          padding: 0 16px;
+          height: 40px;
+
+          span {
+            font-size: 13px;
+          }
+        }
+      }
+    }
+  }
+
+  .dashboard-row {
+    flex-direction: column;
+    height: auto !important;
+    min-height: auto;
+
+    .widget-wrapper {
+      width: 100% !important;
+      height: 400px;
+    }
+  }
+
+  .resize-handle-left,
+  .resize-handle-right {
+    display: none;
+  }
+}
+
+.widget-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: #999;
+}
+
+:host ::ng-deep {
+  .success-snackbar {
+    background-color: #4caf50;
+    color: white;
+    
+    .mat-mdc-snack-bar-label {
+      color: white;
+      font-weight: 500;
+    }
+    
+    .mat-mdc-button {
+      color: white !important;
+    }
+  }
+}
